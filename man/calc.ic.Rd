@@ -4,8 +4,13 @@
 \alias{calc.ic}
 \title{Calculate an information criterion.}
 \usage{
-calc.ic(y_hat, y, ic = c("aicc", "bicc", "aic", "bic", "gcv", "cp"), df,
-  sigma = NULL)
+calc.ic(
+  y_hat,
+  y,
+  ic = c("aicc", "bicc", "aic", "bic", "gcv", "cp"),
+  df,
+  sigma = NULL
+)
 }
 \arguments{
 \item{y_hat}{A vector of fitted values with \code{length(y_hat)=length(y)=n}, or

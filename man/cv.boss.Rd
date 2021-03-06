@@ -4,18 +4,33 @@
 \alias{cv.boss}
 \title{Cross-validation for Best Orthogonalized Subset Selection (BOSS) and Forward Stepwise Selection (FS).}
 \usage{
-cv.boss(x, y, n.folds = 10, n.rep = 1, intercept = TRUE, ...)
+cv.boss(
+  x,
+  y,
+  maxstep = min(nrow(x) - intercept - 1, ncol(x)),
+  intercept = TRUE,
+  n.folds = 10,
+  n.rep = 1,
+  show.warning = TRUE,
+  ...
+)
 }
 \arguments{
 \item{x}{A matrix of predictors, see \code{boss}.}
 
 \item{y}{A vector of response variable, see \code{boss}.}
 
+\item{maxstep}{Maximum number of steps performed. Default is \code{min(n-1,p)} if \code{intercept=FALSE},
+and it is \code{min(n-2, p)} otherwise.}
+
+\item{intercept}{Logical, whether to fit an intercept term. Default is TRUE.}
+
 \item{n.folds}{The number of cross validation folds. Default is 10.}
 
 \item{n.rep}{The number of replications of cross validation. Default is 1.}
 
-\item{intercept}{Logical, whether to fit an intercept term. Default is TRUE.}
+\item{show.warning}{Whether to display a warning if CV is only performed for a subset of candidates.
+e.g. when n<p and 10-fold. Default is TRUE.}
 
 \item{...}{Arguments to \code{boss}, such as \code{hdf.ic.boss}.}
 }
@@ -67,7 +82,7 @@ mu_fs_cv = predict(boss_cv_result, newx=x, method='fs')
 }
 \references{
 \itemize{
-  \item Tian, S., Hurvich, C. and Simonoff, J. (2019), On the Use of Information Criteria
+  \item Tian, S., Hurvich, C. and Simonoff, J. (2021), On the Use of Information Criteria
   for Subset Selection in Least Squares Regression. https://arxiv.org/abs/1911.10191
   \item BOSSreg Vignette https://github.com/sentian/BOSSreg/blob/master/r-package/vignettes/BOSSreg.pdf
 }

@@ -7,21 +7,22 @@
 using namespace Rcpp;
 
 // guideQR
-List guideQR(arma::mat x, arma::vec y, int maxstep);
-RcppExport SEXP _BOSSreg_guideQR(SEXP xSEXP, SEXP ySEXP, SEXP maxstepSEXP) {
+List guideQR(arma::mat x, arma::vec y, int maxstep, bool full);
+RcppExport SEXP _BOSSreg_guideQR(SEXP xSEXP, SEXP ySEXP, SEXP maxstepSEXP, SEXP fullSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::mat >::type x(xSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type y(ySEXP);
     Rcpp::traits::input_parameter< int >::type maxstep(maxstepSEXP);
-    rcpp_result_gen = Rcpp::wrap(guideQR(x, y, maxstep));
+    Rcpp::traits::input_parameter< bool >::type full(fullSEXP);
+    rcpp_result_gen = Rcpp::wrap(guideQR(x, y, maxstep, full));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_BOSSreg_guideQR", (DL_FUNC) &_BOSSreg_guideQR, 3},
+    {"_BOSSreg_guideQR", (DL_FUNC) &_BOSSreg_guideQR, 4},
     {NULL, NULL, 0}
 };
 

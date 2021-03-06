@@ -4,8 +4,16 @@
 \alias{boss}
 \title{Best Orthogonalized Subset Selection (BOSS).}
 \usage{
-boss(x, y, intercept = TRUE, hdf.ic.boss = TRUE, mu = NULL,
-  sigma = NULL, ...)
+boss(
+  x,
+  y,
+  maxstep = min(nrow(x) - intercept - 1, ncol(x)),
+  intercept = TRUE,
+  hdf.ic.boss = TRUE,
+  mu = NULL,
+  sigma = NULL,
+  ...
+)
 }
 \arguments{
 \item{x}{A matrix of predictors, with \code{nrow(x)=length(y)=n} observations and
@@ -13,17 +21,21 @@ boss(x, y, intercept = TRUE, hdf.ic.boss = TRUE, mu = NULL,
 
 \item{y}{A vector of response variable, with \code{length(y)=n}.}
 
+\item{maxstep}{Maximum number of steps performed. Default is \code{min(n-1,p)} if \code{intercept=FALSE},
+and it is \code{min(n-2, p)} otherwise.}
+
 \item{intercept}{Logical, whether to include an intercept term. Default is TRUE.}
 
 \item{hdf.ic.boss}{Logical, whether to calculate the heuristic degrees of freedom (hdf)
 and information criteria (IC) for BOSS. IC includes AIC, BIC, AICc, BICc, GCV,
-Cp. Note that if n<=p, \code{hdf.ic.boss=FALSE} no matter what. Default is TRUE.}
+Cp. Default is TRUE.}
 
 \item{mu}{True mean vector, used in the calculation of hdf. Default is NULL, and is estimated via
-least-squares (LS) regression of y upon x.}
+least-squares (LS) regression of y upon x for n>p, and 10-fold CV cross-validated lasso estimate for n<=p.}
 
 \item{sigma}{True standard deviation of the error, used in the calculation of hdf. Default is NULL,
-and is estimated via least-squares (LS) regression of y upon x.}
+and is estimated via least-squares (LS) regression of y upon x for n>p, and 10-fold cross-validated lasso
+for n<=p.}
 
 \item{...}{Extra parameters to allow flexibility. Currently none allows or requires, just for
 the convinience of call from other parent functions like cv.boss.}
@@ -51,6 +63,7 @@ the convinience of call from other parent functions like cv.boss.}
   in the list is a vector representing values of a given IC for each candidate subset
   of BOSS (or each column in beta_boss). The output IC includes AIC, BIC, AICc, BICc,
   GCV and Mallows' Cp. Note that each IC is calculated by plugging in hdf_boss.
+  \item sigma: estimated error standard deviation. It is only returned when hdf is calculated, i.e. \code{hdf.ic.boss=TRUE}.
 
 }
 }
@@ -59,15 +72,14 @@ the convinience of call from other parent functions like cv.boss.}
  \item Compute the solution path of BOSS and forward stepwise selection (FS).
  \item Compute various information criteria based on a heuristic degrees of freedom (hdf)
   that can serve as the selection rule to choose the subset given by BOSS.
-  Only work when n>p.
 }
 }
 \details{
 This function computes the full solution path given by BOSS and FS on a given
-  dataset (x,y) with n observations and p predictors. In the case where n>p, it also calculates
+  dataset (x,y) with n observations and p predictors. It also calculates
   the heuristic degrees of freedom for BOSS, and various information criteria, which can further
   be used to select the subset from the candidates. Please refer to the Vignette
-  for implementation details and Tian et al. (2019) for methodology details (links are given below).
+  for implementation details and Tian et al. (2021) for methodology details (links are given below).
 }
 \examples{
 ## Generate a trivial dataset, X has mean 0 and norm 1, y has mean 0
@@ -102,8 +114,10 @@ mu_boss_cp = cbind(1,x) \%*\% beta_boss_cp
 }
 \references{
 \itemize{
-  \item Tian, S., Hurvich, C. and Simonoff, J. (2019), On the Use of Information Criteria
+  \item Tian, S., Hurvich, C. and Simonoff, J. (2021), On the Use of Information Criteria
   for Subset Selection in Least Squares Regression. https://arxiv.org/abs/1911.10191
+  \item Reid, S., Tibshirani, R. and Friedman, J. (2016), A Study of Error Variance Estimation in Lasso Regression. Statistica Sinica,
+  P35-67, JSTOR.
   \item BOSSreg Vignette https://github.com/sentian/BOSSreg/blob/master/r-package/vignettes/BOSSreg.pdf
 }
 }

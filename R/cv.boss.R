@@ -2,9 +2,13 @@
 #'
 #' @param x A matrix of predictors, see \code{boss}.
 #' @param y A vector of response variable, see \code{boss}.
+#' @param maxstep Maximum number of steps performed. Default is \code{min(n-1,p)} if \code{intercept=FALSE},
+#'   and it is \code{min(n-2, p)} otherwise.
+#' @param intercept Logical, whether to fit an intercept term. Default is TRUE.
 #' @param n.folds The number of cross validation folds. Default is 10.
 #' @param n.rep The number of replications of cross validation. Default is 1.
-#' @param intercept Logical, whether to fit an intercept term. Default is TRUE.
+#' @param show.warning Whether to display a warning if CV is only performed for a subset of candidates.
+#'   e.g. when n<p and 10-fold. Default is TRUE.
 #' @param ... Arguments to \code{boss}, such as \code{hdf.ic.boss}.
 #'
 #' @return
@@ -24,14 +28,14 @@
 #' @author Sen Tian
 #' @references
 #' \itemize{
-#'   \item Tian, S., Hurvich, C. and Simonoff, J. (2019), On the Use of Information Criteria
+#'   \item Tian, S., Hurvich, C. and Simonoff, J. (2021), On the Use of Information Criteria
 #'   for Subset Selection in Least Squares Regression. https://arxiv.org/abs/1911.10191
 #'   \item BOSSreg Vignette https://github.com/sentian/BOSSreg/blob/master/r-package/vignettes/BOSSreg.pdf
 #' }
 #' @seealso \code{predict} and \code{coef} methods for \code{cv.boss} object, and the \code{boss} function
 #' @example R/example/eg.cv.boss.R
 #' @export
-cv.boss <- function(x, y, n.folds=10, n.rep=1, intercept=TRUE, ...){
+cv.boss <- function(x, y, maxstep=min(nrow(x)-intercept-1, ncol(x)), intercept=TRUE, n.folds=10, n.rep=1, show.warning=TRUE, ...){
   # # arguments
   argu = list(...)
   # argu_boss = c('intercept', 'hdf.ic.boss') # arguments that boss accepts
@@ -47,9 +51,11 @@ cv.boss <- function(x, y, n.folds=10, n.rep=1, intercept=TRUE, ...){
   # start the CV process
   n = dim(x)[1]
   p = dim(x)[2]
-  maxstep = trunc(min(n - n/n.folds, p))
-  if(maxstep < p){
-    warning('the number of observations in each fold, does not allow evaluating the full path, some large sets of variables are ignored')
+  maxstep_tmp = maxstep
+  maxstep = trunc(min(n - n/n.folds - 1, maxstep_tmp))
+  if(maxstep < maxstep_tmp & show.warning){
+    warning(paste0('Subsets up to size ', maxstep,
+                   ' are evaluated by CV. Increase the number of folds to incorporate larger subsets.'))
   }
 
   # matrix to store the CV error
@@ -66,7 +72,7 @@ cv.boss <- function(x, y, n.folds=10, n.rep=1, intercept=TRUE, ...){
       y.test = y[test.index]
       x.train = x[-test.index, , drop=FALSE]
       y.train = y[-test.index]
-      boss_result = boss(x.train, y.train, intercept, hdf.ic.boss=FALSE)
+      boss_result = boss(x.train, y.train, maxstep, intercept, hdf.ic.boss=FALSE)
       beta_fs = boss_result$beta_fs
       beta_boss = boss_result$beta_boss
       # if intercept
@@ -86,7 +92,7 @@ cv.boss <- function(x, y, n.folds=10, n.rep=1, intercept=TRUE, ...){
 
 
   # fit on the full sample
-  boss_result = boss(x, y, intercept, ...)
+  boss_result = boss(x, y, maxstep_tmp, intercept, ...)
 
   # output
   out = list(boss=boss_result,

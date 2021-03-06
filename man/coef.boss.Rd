@@ -4,8 +4,12 @@
 \alias{coef.boss}
 \title{Select coefficient vector(s) for BOSS.}
 \usage{
-\method{coef}{boss}(object, ic = c("aicc", "bicc", "aic", "bic", "gcv",
-  "cp"), select.boss = NULL, ...)
+\method{coef}{boss}(
+  object,
+  ic = c("aicc", "bicc", "aic", "bic", "gcv", "cp"),
+  select.boss = NULL,
+  ...
+)
 }
 \arguments{
 \item{object}{The boss object, returned from calling the \code{boss} function.}
@@ -32,8 +36,6 @@ corresponding column(s) in the coefficient matrix.
 
 If \code{select.boss} is unspecified, the function returns the optimal coefficient
 vector selected by AICc-hdf (other choice of IC can be specified in the argument \code{ic}).
-The only exception is when n>=p, where hdf is not well defined, and the entire coefficient matrix
-is returned.
 }
 \examples{
 ## Generate a trivial dataset, X has mean 0 and norm 1, y has mean 0

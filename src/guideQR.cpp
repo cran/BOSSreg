@@ -38,6 +38,7 @@ void updateQv(arma::vec &v, arma::mat &Qr){
   }
 }
 
+// algorithm 2.19 and 2.20 in the reference: Hammarling (2008) 'Updating the QR Factorization and the Least Squares Problem'
 // update QR decomposition
 void updateQR(arma::mat &Ql, arma::mat &Qr, arma::mat &R, arma::vec newcol){
   int n = Ql.n_rows;
@@ -58,11 +59,11 @@ void updateQR(arma::mat &Ql, arma::mat &Qr, arma::mat &R, arma::vec newcol){
 
 // guided QR decomposition, based on semi-partial correlation
 // [[Rcpp::export]]
-List guideQR(arma::mat x, arma::vec y, int maxstep){
-  // int n = x.n_rows;
+List guideQR(arma::mat x, arma::vec y, int maxstep, bool full){
+  int n = x.n_rows;
   int p = x.n_cols;
   // which_remain stores the indices of remaining preditors
-  arma::vec which_remain = arma::vec(maxstep);
+  arma::vec which_remain = arma::vec(p);
   std::iota (std::begin(which_remain), std::end(which_remain), 0);
 
   arma::mat Q, R, x_remain = x;
@@ -106,6 +107,14 @@ List guideQR(arma::mat x, arma::vec y, int maxstep){
     }
   }
 
+  // when maxstep < p, offer the option to return a full Q matrix
+  // by projecting the remaining predictors to existing columns of Q in their physical order
+  if(full){
+    for (int i_step=0; i_step<=n-maxstep-1; i_step++){
+      updateQR(Ql, Qr, R, x_remain.col(i_step));
+    }
+  }
+
   // add 1 to match the index in R
   steps = steps + 1;
   return List::create(Named("Q") = Ql,
@@ -113,3 +122,4 @@ List guideQR(arma::mat x, arma::vec y, int maxstep){
                       Named("steps") = steps);
 
 }
+
